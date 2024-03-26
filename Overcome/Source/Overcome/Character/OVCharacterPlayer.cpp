@@ -54,7 +54,7 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 		QuaterMoveAction = InputActionQuaterMoveRef.Object;
 	}
 
-	CurrentCharacterControlType = ECharacterControlType::Quater;
+	CurrentCharacterControlType = ECharacterControlType::Shoulder;
 }
 
 void AOVCharacterPlayer::BeginPlay()

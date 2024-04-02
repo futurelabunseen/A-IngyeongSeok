@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/OVCharacterBase.h"
 #include "InputActionValue.h"
+#include "Components/TimelineComponent.h"
 #include "OVCharacterPlayer.generated.h"
 
 /**
@@ -20,9 +21,21 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+//Timeline Section
+	FOnTimelineFloat SmoothCrouchInterpFunction; // (1)
+	FOnTimelineEvent SmoothCrouchTimelineFinish; // (2)
+	UFUNCTION()
+	void SmoothCrouchInterpReturn(float Value); // (3)
+	UFUNCTION()
+	void SmoothCrouchOnFinish(); // (4)
+	UPROPERTY()
+	UTimelineComponent* SmoothCrouchingCurveTimeline; // (5)
+	UPROPERTY(EditAnywhere, Category = "Timeline")
+	UCurveFloat* SmoothCrouchingCurveFloat; // (6)
+
 
 // Character Control Section
 protected:

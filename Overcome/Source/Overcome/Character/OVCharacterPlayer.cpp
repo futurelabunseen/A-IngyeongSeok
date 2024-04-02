@@ -14,7 +14,7 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 	//Camera
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.0f;
+	CameraBoom->TargetArmLength = 250.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 	CameraBoom->SocketOffset = FVector(0.0, 80.0, 50.0);
 
@@ -61,14 +61,24 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 
 	CurrentCharacterControlType = ECharacterControlType::Shoulder;
 	bIsAiming = false;
+	SmoothCrouchingCurveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineFront"));
+	SmoothCrouchInterpFunction.BindUFunction(this, FName("SmoothCrouchInterpReturn"));
+	SmoothCrouchTimelineFinish.BindUFunction(this, FName("SmoothCrouchOnFinish"));
 }
 
 void AOVCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-
+	if (SmoothCrouchingCurveFloat)
+	{
+		SmoothCrouchingCurveTimeline->AddInterpFloat(SmoothCrouchingCurveFloat, SmoothCrouchInterpFunction);
+		SmoothCrouchingCurveTimeline->SetTimelineFinishedFunc(SmoothCrouchTimelineFinish);
+		SmoothCrouchingCurveTimeline->SetLooping(false);
+	}
 	SetCharacterControl(CurrentCharacterControlType);
 }
+
+
 
 void AOVCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -85,6 +95,17 @@ void AOVCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOVCharacterPlayer::StopAiming);
 	
 }
+
+void AOVCharacterPlayer::SmoothCrouchInterpReturn(float Value)
+{
+	CameraBoom->TargetArmLength = (FMath::Lerp(250, 150, Value));
+	
+}
+
+void AOVCharacterPlayer::SmoothCrouchOnFinish()
+{
+}
+
 
 void AOVCharacterPlayer::ChangeCharacterControl()
 {
@@ -180,13 +201,14 @@ void AOVCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 void AOVCharacterPlayer::Aiming(const FInputActionValue& Value)
 {
 	bIsAiming = true;
-
+	SmoothCrouchingCurveTimeline->Play();
+	
 }
 
 void AOVCharacterPlayer::StopAiming(const FInputActionValue& Value)
 {
 	bIsAiming = false;
-
+	SmoothCrouchingCurveTimeline->Reverse();
 }
 
 

@@ -55,3 +55,9 @@ void UOVAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		DeltaZ = UKismetMathLibrary::ClampAngle(DeltaZ, -160, 160);
 	}
 }
+
+
+void UOVAnimInstance::AnimNotify_PlayMontageNotify()
+{
+	UE_LOG(LogTemp, Log, TEXT("GrenadeCheck"))
+}

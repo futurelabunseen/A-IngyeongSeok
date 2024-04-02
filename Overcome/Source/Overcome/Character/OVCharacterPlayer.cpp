@@ -16,6 +16,7 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 300.0f;
 	CameraBoom->bUsePawnControlRotation = true;
+	CameraBoom->SocketOffset = FVector(0.0, 80.0, 50.0);
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
@@ -23,7 +24,6 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 
 
 	// Input
-
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionJumpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_OV_Jump.IA_OV_Jump'"));
 	if (nullptr != InputActionJumpRef.Object)
 	{
@@ -56,9 +56,8 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 	static ConstructorHelpers::FObjectFinder<UInputAction> AimActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_OV_MouseRight.IA_OV_MouseRight'"));
 	if (nullptr != AimActionRef.Object)
 	{
-		MouseRight = AimActionRef.Object;
+		AimAction = AimActionRef.Object;
 	}
-
 
 	CurrentCharacterControlType = ECharacterControlType::Shoulder;
 	bIsAiming = false;
@@ -82,8 +81,8 @@ void AOVCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(ShoulderMoveAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::ShoulderMove);
 		EnhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::ShoulderLook);
 		EnhancedInputComponent->BindAction(QuaterMoveAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::QuaterMove);
-		EnhancedInputComponent->BindAction(MouseRight, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::Aiming);
-		EnhancedInputComponent->BindAction(MouseRight, ETriggerEvent::Completed, this, &AOVCharacterPlayer::StopAiming);
+		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::Aiming);
+		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOVCharacterPlayer::StopAiming);
 	
 }
 
@@ -134,6 +133,7 @@ void AOVCharacterPlayer::SetCharacterControlData(const UOVCharacterControlData* 
 	CameraBoom->bDoCollisionTest = CharacterControlData->bDoCollisionTest;
 }
 
+
 void AOVCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
@@ -180,12 +180,15 @@ void AOVCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 void AOVCharacterPlayer::Aiming(const FInputActionValue& Value)
 {
 	bIsAiming = true;
+
 }
 
 void AOVCharacterPlayer::StopAiming(const FInputActionValue& Value)
 {
 	bIsAiming = false;
+
 }
+
 
 void AOVCharacterPlayer::Jumping(const FInputActionValue& Value)
 {

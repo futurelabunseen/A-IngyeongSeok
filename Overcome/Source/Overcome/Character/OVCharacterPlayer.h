@@ -30,7 +30,6 @@ protected:
 	void SetCharacterControl(ECharacterControlType NewCharacterControlType); //변경됐을 때 컨트롤 설정 바꾸는 함수
 	virtual void SetCharacterControlData(const class UOVCharacterControlData* CharacterControlData) override;
 
-
 //Camera Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
@@ -38,7 +37,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> FollowCamera;
-
 
 //Input Section
 protected:
@@ -58,7 +56,8 @@ protected:
 	TObjectPtr<class UInputAction> QuaterMoveAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> MouseRight;//마우스 오른쪽
+	TObjectPtr<class UInputAction> AimAction;//마우스 오른쪽
+
 
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLook(const FInputActionValue& Value);
@@ -74,10 +73,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
 	uint8 bIsAiming : 1; //조준 
 
-
 public:
 	const uint8 GetIsAiming() { return bIsAiming; };
-
 
 	ECharacterControlType CurrentCharacterControlType;
 };

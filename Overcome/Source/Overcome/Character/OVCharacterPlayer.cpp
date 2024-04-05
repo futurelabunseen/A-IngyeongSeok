@@ -3,11 +3,14 @@
 
 #include "Character/OVCharacterPlayer.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "OVCharacterControlData.h"
+
 
 AOVCharacterPlayer::AOVCharacterPlayer()
 {
@@ -162,6 +165,9 @@ void AOVCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 
 	AddMovementInput(ForwardDirection, MovementVector.X);
 	AddMovementInput(RightDirection, MovementVector.Y);
+
+	ClearTurnInPlace(MovementVector.X);
+	ClearTurnInPlace(MovementVector.Y);
 }
 
 void AOVCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
@@ -170,6 +176,11 @@ void AOVCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
 
 	AddControllerYawInput(LookAxisVector.X);
 	AddControllerPitchInput(LookAxisVector.Y);
+
+	if (LookAxisVector.X)
+	{
+		TurnInPlace();
+	}
 }
 
 void AOVCharacterPlayer::QuaterMove(const FInputActionValue& Value)
@@ -215,3 +226,84 @@ void AOVCharacterPlayer::Jumping(const FInputActionValue& Value)
 		JumpKeyHoldTime = 0.0f;
 	}
 }
+
+void AOVCharacterPlayer::PlayTurn(class UAnimMontage* MontagetoPlay, float PlayRate, float Duration)
+{
+	if (!bIsTurning)
+	{
+		bIsTurning = true;
+		PlayAnimMontage(MontagetoPlay, PlayRate);
+		// Declare the FTimerHandle within the function
+		FTimerHandle TimerHandle;
+
+		// Set up the timer to call the ResetTurning function after 0.2 seconds
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+			{
+				this->bIsTurning = false;
+			}, Duration, false);
+
+		bIsTurning = false;
+	}
+}
+
+void AOVCharacterPlayer::TurnRight90()
+{
+	PlayTurn(TurnRight_90, 1.5f, 0.5f);
+}
+
+void AOVCharacterPlayer::TurnLeft90()
+{
+	PlayTurn(TurnLeft_90, 1.5f, 0.5f);
+}
+
+void AOVCharacterPlayer::TurnRight180()
+{
+	PlayTurn(TurnRight_180, 1.7f, 0.6f);
+}
+
+void AOVCharacterPlayer::TurnLeft180()
+{
+	PlayTurn(TurnLeft_180, 1.7f, 0.6f);
+}
+
+void AOVCharacterPlayer::ClearTurnInPlace(float Force)
+{
+	if (Force != 0.0f)
+	{
+		ClearMotion();
+	}
+}
+
+void AOVCharacterPlayer::ClearMotion()
+{
+	if (IsPlayingRootMotion())
+	{
+		StopAnimMontage(GetCurrentMontage());
+	}
+
+}
+
+void AOVCharacterPlayer::TurnInPlace()
+{
+	float VelocityXY = GetCharacterMovement()->Velocity.Size2D();
+	if (!(GetCharacterMovement()->IsFalling()) && !(VelocityXY > 0.0f))
+	{
+		FRotator DeltaRotation = GetActorRotation() - GetBaseAimRotation();
+		DeltaRotation.Normalize();
+		float DeltaYaw = DeltaRotation.Yaw * -1.0f;
+
+		if ((DeltaYaw > 45.f) || (DeltaYaw < -45.f))
+		{
+			UE_LOG(LogTemp, Log, TEXT("DeltaYaw : %f"), DeltaYaw);
+			if (DeltaYaw > 135.f)
+				TurnRight180();
+			else if (DeltaYaw < -135.f)
+				TurnLeft180();
+			else if(DeltaYaw > 45.f)
+				TurnRight90();
+			else if (DeltaYaw < -45.f)
+				TurnLeft90();
+		}
+	}
+}
+

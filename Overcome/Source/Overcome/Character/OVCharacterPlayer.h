@@ -71,6 +71,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> AimAction;//마우스 오른쪽
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IsGunAction; 
 
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLook(const FInputActionValue& Value);
@@ -81,13 +83,56 @@ protected:
 	void StopAiming(const FInputActionValue& Value);
 
 	void Jumping(const FInputActionValue& Value);
-
+	
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
 	uint8 bIsAiming : 1; //조준 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	uint8 bIsGun : 1; 
+
 public:
 	const uint8 GetIsAiming() { return bIsAiming; };
-
 	ECharacterControlType CurrentCharacterControlType;
+
+//Turn In Place Section
+	UFUNCTION(BlueprintCallable, Category = "Turn")
+	void PlayTurn(class UAnimMontage* MontagetoPlay, float PlayRate, float Duration);
+
+	UFUNCTION(BlueprintCallable, Category = "Turn")
+	void TurnRight90();
+	
+	UFUNCTION(BlueprintCallable, Category = "Turn")
+	void TurnLeft90();
+
+	UFUNCTION(BlueprintCallable, Category = "Turn")
+	void TurnRight180();
+
+	UFUNCTION(BlueprintCallable, Category = "Turn")
+	void TurnLeft180();
+
+	UFUNCTION(BlueprintCallable, Category = "Turn")
+	void ClearTurnInPlace(float Force);
+
+	UFUNCTION(BlueprintCallable, Category = "Turn")
+	void ClearMotion();
+
+	UFUNCTION(BlueprintCallable, Category = "Turn")
+	void TurnInPlace();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn")
+	uint8 bIsTurning : 1; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn")
+	TObjectPtr<class UAnimMontage> TurnRight_90;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn")
+	TObjectPtr<class UAnimMontage> TurnLeft_90;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn")
+	TObjectPtr<class UAnimMontage> TurnRight_180;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn")
+	TObjectPtr<class UAnimMontage> TurnLeft_180;
 };

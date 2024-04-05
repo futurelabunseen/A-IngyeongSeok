@@ -63,7 +63,10 @@ protected:
 	TObjectPtr<class UInputAction> ShoulderMoveAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> ShoulderLookAction;
+	TObjectPtr<class UInputAction> ShoulderLookActionX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> ShoulderLookActionY;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> QuaterMoveAction;
@@ -75,7 +78,8 @@ protected:
 	TObjectPtr<class UInputAction> IsGunAction; 
 
 	void ShoulderMove(const FInputActionValue& Value);
-	void ShoulderLook(const FInputActionValue& Value);
+	void ShoulderLookX(const FInputActionValue& Value);
+	void ShoulderLookY(const FInputActionValue& Value);
 
 	void QuaterMove(const FInputActionValue& Value);
 

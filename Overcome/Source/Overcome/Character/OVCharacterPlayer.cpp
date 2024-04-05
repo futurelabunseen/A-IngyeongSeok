@@ -44,10 +44,16 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 		ShoulderMoveAction = InputActionShoulderMoveRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_OV_ShoulderLook.IA_OV_ShoulderLook'"));
-	if (nullptr != InputActionShoulderLookRef.Object)
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderLookXRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_OV_ShoulderLookX.IA_OV_ShoulderLookX'"));
+	if (nullptr != InputActionShoulderLookXRef.Object)
 	{
-		ShoulderLookAction = InputActionShoulderLookRef.Object;
+		ShoulderLookActionX = InputActionShoulderLookXRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionShoulderLookYRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_OV_ShoulderLookY.IA_OV_ShoulderLookY'"));
+	if (nullptr != InputActionShoulderLookYRef.Object)
+	{
+		ShoulderLookActionY = InputActionShoulderLookYRef.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionQuaterMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_OV_QuaterMove.IA_OV_QuaterMove'"));
@@ -89,7 +95,8 @@ void AOVCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 	EnhancedInputComponent->BindAction(ChangeControlAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::ChangeCharacterControl);
 	EnhancedInputComponent->BindAction(ShoulderMoveAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::ShoulderMove);
-	EnhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::ShoulderLook);
+	EnhancedInputComponent->BindAction(ShoulderLookActionX, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::ShoulderLookX);
+	EnhancedInputComponent->BindAction(ShoulderLookActionY, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::ShoulderLookY);
 	EnhancedInputComponent->BindAction(QuaterMoveAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::QuaterMove);
 	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::Aiming);
 	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOVCharacterPlayer::StopAiming);
@@ -170,17 +177,24 @@ void AOVCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 	ClearTurnInPlace(MovementVector.Y);
 }
 
-void AOVCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
+void AOVCharacterPlayer::ShoulderLookX(const FInputActionValue& Value)
 {
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	float LookAxisVector = Value.Get<float>();
 
-	AddControllerYawInput(LookAxisVector.X);
-	AddControllerPitchInput(LookAxisVector.Y);
+	AddControllerYawInput(LookAxisVector);
+	UE_LOG(LogTemp, Log, TEXT("LookX"));
 
-	if (LookAxisVector.X)
+	if (LookAxisVector)
 	{
 		TurnInPlace();
 	}
+}
+
+void AOVCharacterPlayer::ShoulderLookY(const FInputActionValue& Value)
+{
+	float LookAxisVector = Value.Get<float>();
+
+	AddControllerPitchInput(LookAxisVector);
 }
 
 void AOVCharacterPlayer::QuaterMove(const FInputActionValue& Value)
@@ -294,12 +308,11 @@ void AOVCharacterPlayer::TurnInPlace()
 
 		if ((DeltaYaw > 45.f) || (DeltaYaw < -45.f))
 		{
-			UE_LOG(LogTemp, Log, TEXT("DeltaYaw : %f"), DeltaYaw);
 			if (DeltaYaw > 135.f)
 				TurnRight180();
 			else if (DeltaYaw < -135.f)
 				TurnLeft180();
-			else if(DeltaYaw > 45.f)
+			else if(DeltaYaw >45.f)
 				TurnRight90();
 			else if (DeltaYaw < -45.f)
 				TurnLeft90();

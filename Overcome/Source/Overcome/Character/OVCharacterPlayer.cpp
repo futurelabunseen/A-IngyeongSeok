@@ -184,10 +184,7 @@ void AOVCharacterPlayer::ShoulderLookX(const FInputActionValue& Value)
 	AddControllerYawInput(LookAxisVector);
 	UE_LOG(LogTemp, Log, TEXT("LookX"));
 
-	if (LookAxisVector)
-	{
-		TurnInPlace();
-	}
+	TurnInPlace();
 }
 
 void AOVCharacterPlayer::ShoulderLookY(const FInputActionValue& Value)

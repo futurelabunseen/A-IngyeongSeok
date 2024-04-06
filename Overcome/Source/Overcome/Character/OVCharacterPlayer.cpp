@@ -9,6 +9,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Gun/OVGun.h"
 #include "OVCharacterControlData.h"
 
 
@@ -67,16 +68,34 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 		AimAction = AimActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> ShootActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_OV_Shoot.IA_OV_Shoot'"));
+	if (nullptr != ShootActionRef.Object)
+	{
+		ShootAction = ShootActionRef.Object;
+	}
+
 	CurrentCharacterControlType = ECharacterControlType::Shoulder;
 	bIsAiming = false;
+
+	//Timeline
 	SmoothCrouchingCurveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineFront"));
 	SmoothCrouchInterpFunction.BindUFunction(this, FName("SmoothCrouchInterpReturn"));
 	SmoothCrouchTimelineFinish.BindUFunction(this, FName("SmoothCrouchOnFinish"));
+
+	//Gun
+	Gun = CreateDefaultSubobject<AOVGun>(TEXT("Gun"));
 }
 
 void AOVCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Gun = GetWorld()->SpawnActor<AOVGun>(GunClass);
+	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Rifle_Socket"));
+	//Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));
+	Gun->SetOwner(this);
+	Gun->SetActorEnableCollision(false);
+
 	if (SmoothCrouchingCurveFloat)
 	{
 		SmoothCrouchingCurveTimeline->AddInterpFloat(SmoothCrouchingCurveFloat, SmoothCrouchInterpFunction);
@@ -100,7 +119,9 @@ void AOVCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(QuaterMoveAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::QuaterMove);
 	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::Aiming);
 	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOVCharacterPlayer::StopAiming);
-	
+	EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::Shoot);
+	EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Completed, this, &AOVCharacterPlayer::StopShoot);
+
 }
 
 void AOVCharacterPlayer::SmoothCrouchInterpReturn(float Value)
@@ -182,7 +203,7 @@ void AOVCharacterPlayer::ShoulderLookX(const FInputActionValue& Value)
 	float LookAxisVector = Value.Get<float>();
 
 	AddControllerYawInput(LookAxisVector);
-	UE_LOG(LogTemp, Log, TEXT("LookX"));
+	//UE_LOG(LogTemp, Log, TEXT("LookX"));
 
 	TurnInPlace();
 }
@@ -317,3 +338,23 @@ void AOVCharacterPlayer::TurnInPlace()
 	}
 }
 
+void AOVCharacterPlayer::Shoot()
+{
+	if (!bIsTurning)
+	{
+		bIsShooting = true;
+		Gun->PullTrigger();
+		FTimerHandle TimerHandle;
+
+		// Set up the timer to call the ResetTurning function after 0.2 seconds
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+			{
+				bIsShooting = false;
+			}, 0.2f, false);
+	}
+}
+
+void AOVCharacterPlayer::StopShoot()
+{
+	;
+}

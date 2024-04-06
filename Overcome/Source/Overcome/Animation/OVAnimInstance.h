@@ -54,6 +54,9 @@ protected:
 	uint8 bIsAiming : 1; //에임모드
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	uint8 bIsShooting : 1; //총 모드
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	float DeltaY;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)

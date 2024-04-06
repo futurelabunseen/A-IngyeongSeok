@@ -11,6 +11,9 @@
 /**
  * 
  */
+
+class AOVGun;
+
 UCLASS()
 class OVERCOME_API AOVCharacterPlayer : public AOVCharacterBase
 {
@@ -74,8 +77,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> AimAction;//마우스 오른쪽
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> IsGunAction; 
+ 
 
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLookX(const FInputActionValue& Value);
@@ -139,4 +141,24 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn")
 	TObjectPtr<class UAnimMontage> TurnLeft_180;
+
+
+//Gun
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Gun")
+	TSubclassOf<AOVGun> GunClass;
+protected:
+	void Shoot();
+	void StopShoot();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
+	uint8 bIsShooting : 1;
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gun", Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> ShootAction;
+
+	const uint8 GetIsShooting() { return bIsShooting; };
+
+	UPROPERTY()
+	AOVGun* Gun;
 };

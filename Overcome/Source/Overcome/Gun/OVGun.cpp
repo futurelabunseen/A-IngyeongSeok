@@ -4,6 +4,7 @@
 #include "Gun/OVGun.h"
 #include "Components/StaticMeshComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Engine/DamageEvents.h"
 
 // Sets default values
 AOVGun::AOVGun()
@@ -30,7 +31,7 @@ void AOVGun::PullTrigger()
 	FRotator Rotation;
 	OwnerController->GetPlayerViewPoint(Location, Rotation);
 
-	FVector End = Location + Rotation.Vector() * MaxRange;
+	FVector End = Location + Rotation.Vector() * MaxRange; 
 
 	//DrawDebugPoint(GetWorld(), Location, 20, FColor::Red, true);
 	//DrawDebugCamera(GetWorld(), Location, Rotation, 90, 2, FColor::Red, true);
@@ -40,7 +41,14 @@ void AOVGun::PullTrigger()
 
 	if (bSuccess)
 	{
+		FVector ShotDirection = -Rotation.Vector();
 		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
+		AActor* HitActor = Hit.GetActor();
+		if (HitActor != nullptr)
+		{
+			FPointDamageEvent DamageEvent{ Damage, Hit, ShotDirection, nullptr };
+			HitActor->TakeDamage(Damage, DamageEvent, OwnerController, this);
+		}
 	}
 }
 

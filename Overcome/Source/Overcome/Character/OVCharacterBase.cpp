@@ -59,6 +59,8 @@ AOVCharacterBase::AOVCharacterBase()
 	{
 		CharacterControlManager.Add(ECharacterControlType::Quater, QuaterDataRef.Object);
 	}
+
+	Health = MaxHealth;
 }
 
 void AOVCharacterBase::SetCharacterControlData(const UOVCharacterControlData* CharacterControlData)
@@ -70,6 +72,16 @@ void AOVCharacterBase::SetCharacterControlData(const UOVCharacterControlData* Ch
 	GetCharacterMovement()->bOrientRotationToMovement = CharacterControlData->bOrientRotationToMovement;
 	GetCharacterMovement()->bUseControllerDesiredRotation = CharacterControlData->bUseControllerDesiredRotation;
 	GetCharacterMovement()->RotationRate = CharacterControlData->RotationRate;
+}
+
+float AOVCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float DamageTpApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	DamageTpApply = FMath::Min(Health, DamageTpApply);
+	Health -= DamageTpApply;
+	UE_LOG(LogTemp, Log, TEXT("Health : %f"), Health);
+	return DamageTpApply;
+
 }
 
 

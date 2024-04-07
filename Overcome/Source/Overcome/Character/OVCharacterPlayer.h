@@ -18,7 +18,7 @@ UCLASS()
 class OVERCOME_API AOVCharacterPlayer : public AOVCharacterBase
 {
 	GENERATED_BODY()
-	
+
 public:
 	AOVCharacterPlayer();
 
@@ -27,7 +27,7 @@ protected:
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-//Timeline Section
+	//Timeline Section
 	FOnTimelineFloat SmoothCrouchInterpFunction; // (1)
 	FOnTimelineEvent SmoothCrouchTimelineFinish; // (2)
 	UFUNCTION()
@@ -40,13 +40,13 @@ public:
 	UCurveFloat* SmoothCrouchingCurveFloat; // (6)
 
 
-// Character Control Section
+	// Character Control Section
 protected:
 	void ChangeCharacterControl(); //V키 눌러서 컨트롤러 바꿨을 때 구현하는 함수
 	void SetCharacterControl(ECharacterControlType NewCharacterControlType); //변경됐을 때 컨트롤 설정 바꾸는 함수
 	virtual void SetCharacterControlData(const class UOVCharacterControlData* CharacterControlData) override;
 
-//Camera Section
+	//Camera Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> CameraBoom;
@@ -54,7 +54,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> FollowCamera;
 
-//Input Section
+	//Input Section
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> JumpAction;
@@ -77,7 +77,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> AimAction;//마우스 오른쪽
 
- 
+
 
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLookX(const FInputActionValue& Value);
@@ -89,26 +89,27 @@ protected:
 	void StopAiming(const FInputActionValue& Value);
 
 	void Jumping(const FInputActionValue& Value);
-	
-	
+
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
 	uint8 bIsAiming : 1; //조준 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-	uint8 bIsGun : 1; 
+	uint8 bIsGun : 1;
 
 public:
 	const uint8 GetIsAiming() { return bIsAiming; };
 	ECharacterControlType CurrentCharacterControlType;
 
-//Turn In Place Section
+protected:
+	//Turn In Place Section
 	UFUNCTION(BlueprintCallable, Category = "Turn")
 	void PlayTurn(class UAnimMontage* MontagetoPlay, float PlayRate, float Duration);
 
 	UFUNCTION(BlueprintCallable, Category = "Turn")
 	void TurnRight90();
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Turn")
 	void TurnLeft90();
 
@@ -128,7 +129,7 @@ public:
 	void TurnInPlace();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn")
-	uint8 bIsTurning : 1; 
+	uint8 bIsTurning : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turn")
 	TObjectPtr<class UAnimMontage> TurnRight_90;
@@ -143,7 +144,7 @@ public:
 	TObjectPtr<class UAnimMontage> TurnLeft_180;
 
 
-//Gun
+	//Gun
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Gun")
 	TSubclassOf<AOVGun> GunClass;
@@ -161,4 +162,6 @@ public:
 
 	UPROPERTY()
 	AOVGun* Gun;
+
+
 };

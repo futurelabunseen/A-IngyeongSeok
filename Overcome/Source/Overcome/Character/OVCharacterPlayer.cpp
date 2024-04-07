@@ -198,6 +198,7 @@ void AOVCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 	ClearTurnInPlace(MovementVector.Y);
 }
 
+
 void AOVCharacterPlayer::ShoulderLookX(const FInputActionValue& Value)
 {
 	float LookAxisVector = Value.Get<float>();
@@ -330,7 +331,7 @@ void AOVCharacterPlayer::TurnInPlace()
 				TurnRight180();
 			else if (DeltaYaw < -135.f)
 				TurnLeft180();
-			else if(DeltaYaw >45.f)
+			else if(DeltaYaw > 45.f)
 				TurnRight90();
 			else if (DeltaYaw < -45.f)
 				TurnLeft90();
@@ -340,7 +341,7 @@ void AOVCharacterPlayer::TurnInPlace()
 
 void AOVCharacterPlayer::Shoot()
 {
-	if (!bIsTurning)
+	if (!bIsShooting)
 	{
 		bIsShooting = true;
 		Gun->PullTrigger();
@@ -358,3 +359,4 @@ void AOVCharacterPlayer::StopShoot()
 {
 	;
 }
+

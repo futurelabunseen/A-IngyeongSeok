@@ -27,4 +27,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
 	TMap<ECharacterControlType, class UOVCharacterControlData*> CharacterControlManager;
+
+//Gun Section
+public:
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = Gun)
+	float MaxHealth = 100.f;
+
+	UPROPERTY(VisibleAnywhere)
+	float Health;
 };

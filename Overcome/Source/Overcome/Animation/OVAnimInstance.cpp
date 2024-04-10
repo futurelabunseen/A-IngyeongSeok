@@ -39,7 +39,6 @@ void UOVAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsFalling = Movement->IsFalling();
 		bIsJumping = bIsFalling & (Velocity.Z > JumpingThreshould);
 		bIsAiming = Owner->GetIsAiming();
-		bIsShooting = Owner->GetIsShooting();
 		FRotator ControlRotation = Owner->GetControlRotation();
 		FRotator GetActorRotation = Owner->GetActorRotation();
 		FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(ControlRotation, GetActorRotation);

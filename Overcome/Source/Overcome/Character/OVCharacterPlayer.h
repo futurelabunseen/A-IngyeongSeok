@@ -158,7 +158,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gun", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ShootAction;
 
-	const uint8 GetIsShooting() { return bIsShooting; };
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
+	TObjectPtr<class UAnimMontage> Shooting_Gun;
 
 	UPROPERTY()
 	AOVGun* Gun;

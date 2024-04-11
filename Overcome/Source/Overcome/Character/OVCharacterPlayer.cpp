@@ -74,6 +74,12 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 		ShootAction = ShootActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> WheelActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_OV_ChangeWeapon.IA_OV_ChangeWeapon'"));
+	if (nullptr != WheelActionRef.Object)
+	{
+		WheelAction = WheelActionRef.Object;
+	}
+
 	CurrentCharacterControlType = ECharacterControlType::Shoulder;
 	bIsAiming = false;
 
@@ -91,7 +97,7 @@ void AOVCharacterPlayer::BeginPlay()
 	Super::BeginPlay();
 
 	Gun = GetWorld()->SpawnActor<AOVGun>(GunClass);
-	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Rifle_Socket"));
+	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));
 	//Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));
 	Gun->SetOwner(this);
 	Gun->SetActorEnableCollision(false);
@@ -121,6 +127,7 @@ void AOVCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOVCharacterPlayer::StopAiming);
 	EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::Shoot);
 	EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Completed, this, &AOVCharacterPlayer::StopShoot);
+	EnhancedInputComponent->BindAction(WheelAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::ChangeWeapon);
 
 }
 
@@ -258,6 +265,17 @@ void AOVCharacterPlayer::Jumping(const FInputActionValue& Value)
 		bPressedJump = true;
 		JumpKeyHoldTime = 0.0f;
 	}
+}
+
+void AOVCharacterPlayer::ChangeWeapon(const FInputActionValue& Value)
+{
+	float TEST = Value.Get<float>();
+	UE_LOG(LogTemp, Log, TEXT("Change Weapon: %f"), TEST);
+	int GunSocket = TEST;
+	if(GunSocket > 0)
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Rifle_Socket"));
+	else
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));
 }
 
 void AOVCharacterPlayer::PlayTurn(class UAnimMontage* MontagetoPlay, float PlayRate, float Duration)

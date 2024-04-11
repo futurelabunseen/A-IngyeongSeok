@@ -52,6 +52,7 @@ void AOVGun::PullTrigger()
 	}
 }
 
+
 // Called when the game starts or when spawned
 void AOVGun::BeginPlay()
 {

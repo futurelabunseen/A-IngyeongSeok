@@ -155,16 +155,16 @@ void AOVCharacterPlayer::ChangeCharacterControl()
 
 void AOVCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterControlType)
 {
-	UOVCharacterControlData* NewCharacterControl = CharacterControlManager[NewCharacterControlType]; //ÄÁÆ®·Ñ µ¥ÀÌÅÍ °¡Áö°í ¿Â´Ù
-	check(NewCharacterControl); //¹Ýµå½Ã ÀÖ´ÂÁö È®ÀÎ
+	UOVCharacterControlData* NewCharacterControl = CharacterControlManager[NewCharacterControlType]; //ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Â´ï¿½
+	check(NewCharacterControl); //ï¿½Ýµï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
 
 	SetCharacterControlData(NewCharacterControl);
 
-	APlayerController* PlayerController = CastChecked<APlayerController>(GetController()); //ÄÁÆ®·Ñ·¯ °¡Áö°í ¿À±â CastChecked·Î È®ÀÎ
+	APlayerController* PlayerController = CastChecked<APlayerController>(GetController()); //ï¿½ï¿½Æ®ï¿½Ñ·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ CastCheckedï¿½ï¿½ È®ï¿½ï¿½
 
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
-		Subsystem->ClearAllMappings(); //¸ÅÇÎ ÃÊ±âÈ­
+		Subsystem->ClearAllMappings(); //ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 		UInputMappingContext* NewMappingContext = NewCharacterControl->InputMappingContext;
 		if (NewMappingContext)
 		{
@@ -286,7 +286,7 @@ void AOVCharacterPlayer::PlayTurn(class UAnimMontage* MontagetoPlay, float PlayR
 		PlayAnimMontage(MontagetoPlay, PlayRate);
 		// Declare the FTimerHandle within the function
 		FTimerHandle TimerHandle;
-
+		
 		// Set up the timer to call the ResetTurning function after 0.2 seconds
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
 			{
@@ -342,7 +342,7 @@ void AOVCharacterPlayer::TurnInPlace()
 		FRotator DeltaRotation = GetActorRotation() - GetBaseAimRotation();
 		DeltaRotation.Normalize();
 		float DeltaYaw = DeltaRotation.Yaw * -1.0f;
-
+        //Todo ì™¸ì  ì‚¬ìš©í•´ì„œ ë‹¤ì‹œ êµ¬í˜„í•˜ê¸° 
 		if ((DeltaYaw > 45.f) || (DeltaYaw < -45.f))
 		{
 			if (DeltaYaw > 135.f)

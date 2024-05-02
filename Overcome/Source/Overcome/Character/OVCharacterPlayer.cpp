@@ -11,7 +11,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "Gun/OVGun.h"
 #include "OVCharacterControlData.h"
-
+#include "OvercomeLog.h"
+#include "Net/UnrealNetwork.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AOVCharacterPlayer::AOVCharacterPlayer()
 {
@@ -84,9 +86,9 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 	bIsAiming = false;
 
 	//Timeline
-	SmoothCrouchingCurveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineFront"));
-	SmoothCrouchInterpFunction.BindUFunction(this, FName("SmoothCrouchInterpReturn"));
-	SmoothCrouchTimelineFinish.BindUFunction(this, FName("SmoothCrouchOnFinish"));
+	SmoothCurveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineFront"));
+	SmoothInterpFunction.BindUFunction(this, FName("SmoothInterpReturn"));
+	SmoothTimelineFinish.BindUFunction(this, FName("SmoothOnFinish"));
 
 	//Gun
 	Gun = CreateDefaultSubobject<AOVGun>(TEXT("Gun"));
@@ -102,11 +104,11 @@ void AOVCharacterPlayer::BeginPlay()
 	Gun->SetOwner(this);
 	Gun->SetActorEnableCollision(false);
 
-	if (SmoothCrouchingCurveFloat)
+	if (SmoothCurveFloat)
 	{
-		SmoothCrouchingCurveTimeline->AddInterpFloat(SmoothCrouchingCurveFloat, SmoothCrouchInterpFunction);
-		SmoothCrouchingCurveTimeline->SetTimelineFinishedFunc(SmoothCrouchTimelineFinish);
-		SmoothCrouchingCurveTimeline->SetLooping(false);
+		SmoothCurveTimeline->AddInterpFloat(SmoothCurveFloat, SmoothInterpFunction);
+		SmoothCurveTimeline->SetTimelineFinishedFunc(SmoothTimelineFinish);
+		SmoothCurveTimeline->SetLooping(false);
 	}
 	SetCharacterControl(CurrentCharacterControlType);
 }
@@ -131,12 +133,12 @@ void AOVCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 }
 
-void AOVCharacterPlayer::SmoothCrouchInterpReturn(float Value)
+void AOVCharacterPlayer::SmoothInterpReturn(float Value)
 {
 	CameraBoom->TargetArmLength = (FMath::Lerp(250, 150, Value));
 }
 
-void AOVCharacterPlayer::SmoothCrouchOnFinish()
+void AOVCharacterPlayer::SmoothOnFinish()
 {
 }
 
@@ -155,6 +157,11 @@ void AOVCharacterPlayer::ChangeCharacterControl()
 
 void AOVCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterControlType)
 {
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+	
 	UOVCharacterControlData* NewCharacterControl = CharacterControlManager[NewCharacterControlType]; //��Ʈ�� ������ ������ �´�
 	check(NewCharacterControl); //�ݵ�� �ִ��� Ȯ��
 
@@ -247,14 +254,15 @@ void AOVCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 void AOVCharacterPlayer::Aiming(const FInputActionValue& Value)
 {
 	bIsAiming = true;
-	SmoothCrouchingCurveTimeline->Play();
-	
+	SmoothCurveTimeline->Play();
+	ServerRPCAiming();
 }
 
 void AOVCharacterPlayer::StopAiming(const FInputActionValue& Value)
 {
 	bIsAiming = false;
-	SmoothCrouchingCurveTimeline->Reverse();
+	SmoothCurveTimeline->Reverse();
+	ServerRPCStopAiming();
 }
 
 
@@ -276,6 +284,40 @@ void AOVCharacterPlayer::ChangeWeapon(const FInputActionValue& Value)
 		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Rifle_Socket"));
 	else
 		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));
+}
+
+void AOVCharacterPlayer::AimOffset(float DeltaTime)
+{
+	//컨트롤러 회전 사용 중단
+	if(!bIsAiming) return ;
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	float Speed = Velocity.Size();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+
+	if(Speed == 0.f && !bIsInAir)		// 서있고 점프 안하는 상태
+	{
+		FRotator CurrentAimRoTation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		FRotator DeltaAimRotaion = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRoTation, StaringAimRotation); //회전값 가지고 오기
+		AO_Yaw = DeltaAimRotaion.Yaw;
+		bUseControllerRotationYaw = false;
+	}
+	if(Speed > 0.f || bIsInAir)    // 달리거나 점프할 때
+	{
+		StaringAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		AO_Yaw = 0.f;
+		bUseControllerRotationYaw = true;
+	}
+
+	AO_Pitch = GetBaseAimRotation().Pitch;
+
+	if(AO_Pitch > 90.f && !IsLocallyControlled())
+	{
+		//[270,360) -> [-90, 0]
+		FVector2D InRange(270.f, 360.f);
+		FVector2D OutRange(-90, 0.f);
+		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+	}
 }
 
 void AOVCharacterPlayer::PlayTurn(class UAnimMontage* MontagetoPlay, float PlayRate, float Duration)
@@ -378,5 +420,27 @@ void AOVCharacterPlayer::Shoot()
 void AOVCharacterPlayer::StopShoot()
 {
 
+}
+
+void AOVCharacterPlayer::ServerRPCStopAiming_Implementation()
+{
+	bIsAiming = false;
+}
+
+void AOVCharacterPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AOVCharacterPlayer, bIsAiming);
+}
+
+void AOVCharacterPlayer::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	AimOffset(DeltaSeconds);
+}
+
+void AOVCharacterPlayer::ServerRPCAiming_Implementation()
+{
+	bIsAiming = true;
 }
 

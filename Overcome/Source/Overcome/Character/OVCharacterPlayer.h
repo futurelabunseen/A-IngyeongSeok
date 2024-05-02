@@ -28,22 +28,22 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	//Timeline Section
-	FOnTimelineFloat SmoothCrouchInterpFunction; // (1)
-	FOnTimelineEvent SmoothCrouchTimelineFinish; // (2)
+	FOnTimelineFloat SmoothInterpFunction; // (1)
+	FOnTimelineEvent SmoothTimelineFinish; // (2)
 	UFUNCTION()
-	void SmoothCrouchInterpReturn(float Value); // (3)
+	void SmoothInterpReturn(float Value); // (3)
 	UFUNCTION()
-	void SmoothCrouchOnFinish(); // (4)
+	void SmoothOnFinish(); // (4)
 	UPROPERTY()
-	UTimelineComponent* SmoothCrouchingCurveTimeline; // (5)
+	UTimelineComponent* SmoothCurveTimeline; // (5)
 	UPROPERTY(EditAnywhere, Category = "Timeline")
-	UCurveFloat* SmoothCrouchingCurveFloat; // (6)
+	UCurveFloat* SmoothCurveFloat; // (6)
 
 
 	// Character Control Section
 protected:
-	void ChangeCharacterControl(); //VÅ° ´­·¯¼­ ÄÁÆ®·Ñ·¯ ¹Ù²åÀ» ¶§ ±¸ÇöÇÏ´Â ÇÔ¼ö
-	void SetCharacterControl(ECharacterControlType NewCharacterControlType); //º¯°æµÆÀ» ¶§ ÄÁÆ®·Ñ ¼³Á¤ ¹Ù²Ù´Â ÇÔ¼ö
+	void ChangeCharacterControl(); //Ví‚¤ ëˆŒëŸ¬ì„œ ì»¨íŠ¸ë¡¤ëŸ¬ ë°”ê¿¨ì„ ë•Œ êµ¬í˜„í•˜ëŠ” í•¨ìˆ˜
+	void SetCharacterControl(ECharacterControlType NewCharacterControlType); //ë³€ê²½ëì„ ë•Œ ì»¨íŠ¸ë¡¤ ì„¤ì • ë°”ê¾¸ëŠ” í•¨ìˆ˜
 	virtual void SetCharacterControlData(const class UOVCharacterControlData* CharacterControlData) override;
 
 	//Camera Section
@@ -75,7 +75,7 @@ protected:
 	TObjectPtr<class UInputAction> QuaterMoveAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> AimAction;//¸¶¿ì½º ¿À¸¥ÂÊ
+	TObjectPtr<class UInputAction> AimAction;//ë§ˆìš°ìŠ¤ ì˜¤ë¥¸ìª½
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> WheelAction;
@@ -93,11 +93,20 @@ protected:
 
 	void ChangeWeapon(const FInputActionValue& Value);
 
+	//AimOffset
+	void AimOffset(float DeltaTime);
 
+	float AO_Yaw;
+	float AO_Pitch;
+	FRotator StaringAimRotation;
+
+public:
+	FORCEINLINE float GetAO_Yaw() const {return AO_Yaw;};
+	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;};
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-	uint8 bIsAiming : 1; //Á¶ÁØ 
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character")
+	uint8 bIsAiming : 1; //ì¡°ì¤€ 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
 	uint8 bIsGun : 1;
@@ -168,5 +177,16 @@ public:
 	UPROPERTY()
 	AOVGun* Gun;
 
+	// ServerRPC
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCAiming();
+	
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCStopAiming();
+	
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+public:
+	virtual void Tick(float DeltaSeconds) override;
 };

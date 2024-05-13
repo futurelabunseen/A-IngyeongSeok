@@ -2,6 +2,8 @@
 
 
 #include "Character/OVCharacterPlayer.h"
+
+#include "EngineUtils.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -92,17 +94,18 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 
 	//Gun
 	Gun = CreateDefaultSubobject<AOVGun>(TEXT("Gun"));
+	bIsGun = true;  
 }
 
 void AOVCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Gun = GetWorld()->SpawnActor<AOVGun>(GunClass);
-	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));
-	//Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));
-	Gun->SetOwner(this);
-	Gun->SetActorEnableCollision(false);
+	if(HasAuthority())
+	{
+		Gun = GetWorld()->SpawnActor<AOVGun>(GunClass);
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));
+	}
 
 	if (SmoothCurveFloat)
 	{
@@ -130,7 +133,6 @@ void AOVCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::Shoot);
 	EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Completed, this, &AOVCharacterPlayer::StopShoot);
 	EnhancedInputComponent->BindAction(WheelAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::ChangeWeapon);
-
 }
 
 void AOVCharacterPlayer::SmoothInterpReturn(float Value)
@@ -219,8 +221,8 @@ void AOVCharacterPlayer::ShoulderLookX(const FInputActionValue& Value)
 
 	AddControllerYawInput(LookAxisVector);
 	//UE_LOG(LogTemp, Log, TEXT("LookX"));
-
-	TurnInPlace();
+	if (bIsAiming && bIsGun)
+		TurnInPlace();
 }
 
 void AOVCharacterPlayer::ShoulderLookY(const FInputActionValue& Value)
@@ -253,9 +255,12 @@ void AOVCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 
 void AOVCharacterPlayer::Aiming(const FInputActionValue& Value)
 {
-	bIsAiming = true;
-	SmoothCurveTimeline->Play();
-	ServerRPCAiming();
+	if (bIsGun)
+	{
+		bIsAiming = true;
+		SmoothCurveTimeline->Play();
+		ServerRPCAiming();
+	}
 }
 
 void AOVCharacterPlayer::StopAiming(const FInputActionValue& Value)
@@ -277,13 +282,17 @@ void AOVCharacterPlayer::Jumping(const FInputActionValue& Value)
 
 void AOVCharacterPlayer::ChangeWeapon(const FInputActionValue& Value)
 {
-	float TEST = Value.Get<float>();
-	UE_LOG(LogTemp, Log, TEXT("Change Weapon: %f"), TEST);
-	int GunSocket = TEST;
+	int GunSocket = Value.Get<float>();   ;
 	if(GunSocket > 0)
-		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Rifle_Socket"));
+	{
+		bIsGun = true;
+		ServerRPCIsGun(bIsGun);
+	}
 	else
-		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));
+	{
+		bIsGun = false;
+		ServerRPCIsGun(bIsGun);
+	}
 }
 
 void AOVCharacterPlayer::AimOffset(float DeltaTime)
@@ -378,6 +387,7 @@ void AOVCharacterPlayer::ClearMotion()
 
 void AOVCharacterPlayer::TurnInPlace()
 {
+	
 	float VelocityXY = GetCharacterMovement()->Velocity.Size2D();
 	if (!(GetCharacterMovement()->IsFalling()) && !(VelocityXY > 0.0f))
 	{
@@ -387,11 +397,12 @@ void AOVCharacterPlayer::TurnInPlace()
         //Todo 외적 사용해서 다시 구현하기 
 		if ((DeltaYaw > 45.f) || (DeltaYaw < -45.f))
 		{
-			if (DeltaYaw > 135.f)
-				TurnRight180();
-			else if (DeltaYaw < -135.f)
-				TurnLeft180();
-			else if(DeltaYaw > 45.f)
+			// if (DeltaYaw > 135.f)
+			// 	TurnRight180();
+			// else if (DeltaYaw < -135.f)
+			// 	TurnLeft180();
+			// else
+			if(DeltaYaw > 45.f)
 				TurnRight90();
 			else if (DeltaYaw < -45.f)
 				TurnLeft90();
@@ -427,10 +438,40 @@ void AOVCharacterPlayer::ServerRPCStopAiming_Implementation()
 	bIsAiming = false;
 }
 
+void AOVCharacterPlayer::ServerRPCIsGun_Implementation(bool IsGun)
+{
+	if(IsGun)
+	{
+		bIsGun=true;
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Rifle_Socket"));
+	}
+	else
+	{
+		bIsGun=false;
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));  
+	}
+
+}
+
+void AOVCharacterPlayer::ClientRPCAttachGun_Implementation(bool IsGun)
+{
+	if(IsGun)                                                                                                                    
+	{
+	
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Rifle_Socket"));               
+	}                                                                                                                            
+	else                                                                                                                         
+	{
+		
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));                
+	}                                                                                                                            
+}
+
 void AOVCharacterPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AOVCharacterPlayer, bIsAiming);
+	DOREPLIFETIME(AOVCharacterPlayer, bIsGun);
 }
 
 void AOVCharacterPlayer::Tick(float DeltaSeconds)

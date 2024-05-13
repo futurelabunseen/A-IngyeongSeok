@@ -14,9 +14,10 @@ AOVGun::AOVGun()
 
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(Root);
-
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));	
 	Mesh->SetupAttachment(Root);
+	this->SetReplicates(true);
+	this->SetActorEnableCollision(false);
 }
 
 void AOVGun::PullTrigger()

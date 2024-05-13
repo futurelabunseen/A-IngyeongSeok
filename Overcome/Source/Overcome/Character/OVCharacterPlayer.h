@@ -108,7 +108,7 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Character")
 	uint8 bIsAiming : 1; //조준 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	UPROPERTY(Replicated,EditAnywhere, BlueprintReadWrite, Category = "Character")
 	uint8 bIsGun : 1;
 
 public:
@@ -183,6 +183,13 @@ public:
 	
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCStopAiming();
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCIsGun(bool IsGun);
+
+	// ClientRPC
+	UFUNCTION(Client, Unreliable)
+	void ClientRPCAttachGun(bool IsGun);
 	
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

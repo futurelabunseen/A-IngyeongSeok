@@ -6,16 +6,30 @@
 #include "Character/OVCharacterBase.h"
 #include "InputActionValue.h"
 #include "Components/TimelineComponent.h"
+#include "Interface/OVCharacterItemInterface.h"
+#include "UObject/FastReferenceCollector.h"
 #include "OVCharacterPlayer.generated.h"
 
 /**
  * 
  */
 
+DECLARE_LOG_CATEGORY_EXTERN(LogOVCharacter, Log, All);
+
 class AOVGun;
 
+DECLARE_DELEGATE_OneParam(FOnTakeItemDelegate, class UOVItemData* /*InItemData*/);
+USTRUCT(BlueprintType)
+struct FTakeItemDelegateWrapper
+{
+	GENERATED_BODY()
+	FTakeItemDelegateWrapper() {}
+	FTakeItemDelegateWrapper(const FOnTakeItemDelegate& InItemDelegate) : ItemDelegate(InItemDelegate){}
+	FOnTakeItemDelegate ItemDelegate;
+};
+
 UCLASS()
-class OVERCOME_API AOVCharacterPlayer : public AOVCharacterBase
+class OVERCOME_API AOVCharacterPlayer : public AOVCharacterBase, public IOVCharacterItemInterface
 {
 	GENERATED_BODY()
 
@@ -196,4 +210,14 @@ protected:
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
+
+	//Item
+protected:
+	UPROPERTY()
+	TArray<FTakeItemDelegateWrapper> TakeItemActions;
+	
+	virtual void TakeItem(UOVItemData* InItemData) override;
+	void DrinkHp(class UOVItemData* InItemData);
+	void DrinkMp(class UOVItemData* InItemData);
+	void DrinkAttack(class UOVItemData* InItemData);
 };

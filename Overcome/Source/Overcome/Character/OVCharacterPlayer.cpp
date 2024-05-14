@@ -2,8 +2,6 @@
 
 
 #include "Character/OVCharacterPlayer.h"
-
-#include "EngineUtils.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -13,9 +11,11 @@
 #include "EnhancedInputSubsystems.h"
 #include "Gun/OVGun.h"
 #include "OVCharacterControlData.h"
-#include "OvercomeLog.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Item/OVHpItemData.h"
+
+DEFINE_LOG_CATEGORY(LogOVCharacter);
 
 AOVCharacterPlayer::AOVCharacterPlayer()
 {
@@ -94,7 +94,12 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 
 	//Gun
 	Gun = CreateDefaultSubobject<AOVGun>(TEXT("Gun"));
-	bIsGun = true;  
+	bIsGun = true;
+
+	//Item Action
+	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AOVCharacterPlayer::DrinkHp)));
+	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AOVCharacterPlayer::DrinkMp)));
+	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AOVCharacterPlayer::DrinkAttack)));
 }
 
 void AOVCharacterPlayer::BeginPlay()
@@ -478,6 +483,29 @@ void AOVCharacterPlayer::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	AimOffset(DeltaSeconds);
+}
+
+void AOVCharacterPlayer::TakeItem(UOVItemData* InItemData)
+{
+	if(InItemData)
+	{
+		TakeItemActions[(uint8)InItemData->Type].ItemDelegate.ExecuteIfBound(InItemData);
+	}
+}
+
+void AOVCharacterPlayer::DrinkHp(UOVItemData* InItemData)
+{
+	UE_LOG(LogOVCharacter, Log, TEXT("Drink HP"));
+}
+
+void AOVCharacterPlayer::DrinkMp(UOVItemData* InItemData)
+{
+	UE_LOG(LogOVCharacter, Log, TEXT("Drink Mp"));
+}
+
+void AOVCharacterPlayer::DrinkAttack(UOVItemData* InItemData)
+{
+	UE_LOG(LogOVCharacter, Log, TEXT("Drink Attack"));
 }
 
 void AOVCharacterPlayer::ServerRPCAiming_Implementation()

@@ -73,6 +73,10 @@ Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
-
 # Asset
-Content/*
+Content/RifleAnims/*
+Content/ParagonLtBelica/*
+Content/ItemPickupSet/*
+Content/FightingAnimations/*
+Content/ThirdPerson/*
+Content/Asset/*

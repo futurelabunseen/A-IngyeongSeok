@@ -47,14 +47,15 @@ void AOVItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		OverlappingPawn->TakeItem(Item);
 	}
 	
-	SetActorEnableCollision(false);
+	//SetActorEnableCollision(false);
 
 	//3초 후 삭제
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 	{
-		this->Destroy();
-		Mesh->SetHiddenInGame(true);
+		// this->Destroy();
+		// Mesh->SetHiddenInGame(true);
+	
 	}, 3.0f, false);
 }
 

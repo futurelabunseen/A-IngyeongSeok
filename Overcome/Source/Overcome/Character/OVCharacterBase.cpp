@@ -2,9 +2,14 @@
 
 
 #include "Character/OVCharacterBase.h"
+
+#include "NiagaraFunctionLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "OVCharacterControlData.h"
+#include "Components/WidgetComponent.h"
+#include "Engine/DamageEvents.h"
+#include "Stat/OVCharacterStatComponent.h"
 
 
 // Sets default values
@@ -61,6 +66,23 @@ AOVCharacterBase::AOVCharacterBase()
 	}
 
 	Health = MaxHealth;
+
+	
+	//Stat Component
+	Stat = CreateDefaultSubobject<UOVCharacterStatComponent>(TEXT("Stat"));
+
+	//Widget Component
+	HpBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
+	HpBar->SetupAttachment(GetMesh());
+	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 200.0f));
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UMG/WBP_HpBar.WBP_HpBar_C"));
+	if (HpBarWidgetRef.Class)
+	{
+		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
+		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+		HpBar->SetDrawSize(FVector2D(150.0f, 15.0f));
+		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 void AOVCharacterBase::SetCharacterControlData(const UOVCharacterControlData* CharacterControlData)
@@ -79,6 +101,8 @@ float AOVCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	float DamageTpApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	DamageTpApply = FMath::Min(Health, DamageTpApply);
 	Health -= DamageTpApply;
+	
+
 	UE_LOG(LogTemp, Log, TEXT("Health : %f"), Health);
 	return DamageTpApply;
 

@@ -5,6 +5,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/DamageEvents.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Character/OVCharacterBase.h"
 
 // Sets default values
 AOVGun::AOVGun()
@@ -18,11 +20,20 @@ AOVGun::AOVGun()
 	Mesh->SetupAttachment(Root);
 	this->SetReplicates(true);
 	this->SetActorEnableCollision(false);
+	
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> HitRef(
+TEXT("/Script/Niagara.NiagaraSystem'/Game/Vefects/Blood_VFX/VFX/Performance_Versions/Bullet_Hits/One_Shot/OS_NS_Bullet_Hit_Medium_Blue.OS_NS_Bullet_Hit_Medium_Blue'"));
+
+	if (HitRef.Succeeded())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HITREF"));
+		EmitterHit = HitRef.Object;
+	}
 }
 
 void AOVGun::PullTrigger()
 {
-	//UE_LOG(LogTemp, Log, TEXT("You've been shot!"));
+	UE_LOG(LogTemp, Log, TEXT("You've been shot!"));
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if(OwnerPawn == nullptr) return;
 	AController* OwnerController = OwnerPawn->GetController();
@@ -34,8 +45,8 @@ void AOVGun::PullTrigger()
 
 	FVector End = Location + Rotation.Vector() * MaxRange; 
 
-	//DrawDebugPoint(GetWorld(), Location, 20, FColor::Red, true);
-	//DrawDebugCamera(GetWorld(), Location, Rotation, 90, 2, FColor::Red, true);
+	// DrawDebugPoint(GetWorld(), Location, 20, FColor::Red, true);
+	// DrawDebugCamera(GetWorld(), Location, Rotation, 90, 2, FColor::Red, true);
 
 	FHitResult Hit;
 	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_GameTraceChannel1);
@@ -43,11 +54,12 @@ void AOVGun::PullTrigger()
 	if (bSuccess)
 	{
 		FVector ShotDirection = -Rotation.Vector();
-		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
-		AActor* HitActor = Hit.GetActor();
+		//DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
+		AOVCharacterBase* HitActor = Cast<AOVCharacterBase>(Hit.GetActor());
 		if (HitActor != nullptr)
 		{
 			FPointDamageEvent DamageEvent{ Damage, Hit, ShotDirection, nullptr };
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), EmitterHit, Hit.Location, FRotator::ZeroRotator);
 			HitActor->TakeDamage(Damage, DamageEvent, OwnerController, this);
 		}
 	}

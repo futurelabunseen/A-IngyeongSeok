@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "OVCharacterBase.generated.h"
 
+class UNiagaraSystem;
+
 UENUM()
 enum class ECharacterControlType : uint8
 {
@@ -38,4 +40,16 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	float Health;
+
+
+	
+	//Stat Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UOVCharacterStatComponent> Stat;
+	
+	//UI Widget Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UWidgetComponent> HpBar;
 };

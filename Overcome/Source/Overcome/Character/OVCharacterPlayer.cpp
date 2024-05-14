@@ -109,6 +109,7 @@ void AOVCharacterPlayer::BeginPlay()
 	if(HasAuthority())
 	{
 		Gun = GetWorld()->SpawnActor<AOVGun>(GunClass);
+		Gun->SetOwner(this);
 		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));
 	}
 

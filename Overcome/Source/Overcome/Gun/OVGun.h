@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NiagaraSystem.h"
 #include "GameFramework/Actor.h"
 #include "OVGun.generated.h"
 
@@ -38,5 +39,7 @@ private:
 
 	UPROPERTY(EditAnywhere);
 	float Damage = 10.f;	
-	
+
+	UPROPERTY()
+	TObjectPtr<UNiagaraSystem> EmitterHit;
 };

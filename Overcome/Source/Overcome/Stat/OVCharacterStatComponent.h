@@ -8,6 +8,7 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnHpChangedDelegate, float /*CurrentHp*/);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAttackChangedDelegate, float /*CurrentHp*/);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OVERCOME_API UOVCharacterStatComponent : public UActorComponent
@@ -25,19 +26,30 @@ protected:
 public:
 	FOnHpZeroDelegate OnHpZero;
 	FOnHpChangedDelegate OnHpchanged;
-
+	FOnAttackChangedDelegate OnAttackChanged;
 	
 	FORCEINLINE float GetMaxHp() {return MaxHp;}
 	FORCEINLINE float GetCurrentHp() {return CurrentHp;}
+	FORCEINLINE float GetCurrentMp() {return CurrentMp;}
+	FORCEINLINE float GetCurrentAttack() {return CurrentAttack;}
 	float ApplyDamage(float InDamage);
 	
-protected:
+
 	void SetHp(float NewHp);
+	void SetMp(float NewMp);
+	void SetAttack(float NewAttack);
 	
+protected:	
 	UPROPERTY(VisibleInstanceOnly, Category = Stat)
 	float MaxHp; // 일단 100으로
 
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
 	float CurrentHp;
+
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
+	float CurrentMp;
+
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
+	float CurrentAttack;
 		
 };

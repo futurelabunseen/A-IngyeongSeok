@@ -14,6 +14,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Item/OVHpItemData.h"
+#include "Stat/OVCharacterStatComponent.h"
 
 DEFINE_LOG_CATEGORY(LogOVCharacter);
 
@@ -100,6 +101,8 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AOVCharacterPlayer::DrinkHp)));
 	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AOVCharacterPlayer::DrinkMp)));
 	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AOVCharacterPlayer::DrinkAttack)));
+
+
 }
 
 void AOVCharacterPlayer::BeginPlay()
@@ -496,17 +499,21 @@ void AOVCharacterPlayer::TakeItem(UOVItemData* InItemData)
 
 void AOVCharacterPlayer::DrinkHp(UOVItemData* InItemData)
 {
-	UE_LOG(LogOVCharacter, Log, TEXT("Drink HP"));
+	float HpIncreaseAmount = Stat->GetCurrentHp() * 1.3;
+	Stat->SetHp(HpIncreaseAmount);
 }
 
 void AOVCharacterPlayer::DrinkMp(UOVItemData* InItemData)
 {
-	UE_LOG(LogOVCharacter, Log, TEXT("Drink Mp"));
+	float MpIncreaseAmount = Stat->GetCurrentMp() * 1.3;
+	Stat->SetMp(MpIncreaseAmount);
 }
 
 void AOVCharacterPlayer::DrinkAttack(UOVItemData* InItemData)
 {
-	UE_LOG(LogOVCharacter, Log, TEXT("Drink Attack"));
+	float AttackIncreaseAmount = Stat->GetCurrentAttack() * 1.3;
+	Stat->SetAttack(AttackIncreaseAmount);
+
 }
 
 void AOVCharacterPlayer::ServerRPCAiming_Implementation()

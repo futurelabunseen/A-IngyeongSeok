@@ -38,7 +38,7 @@ private:
 	float MaxRange = 1000.f;
 
 	UPROPERTY(EditAnywhere);
-	float Damage = 10.f;	
+	float Damage;	
 
 	UPROPERTY()
 	TObjectPtr<UNiagaraSystem> EmitterHit;

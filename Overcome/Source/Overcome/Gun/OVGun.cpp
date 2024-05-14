@@ -7,6 +7,8 @@
 #include "Engine/DamageEvents.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Character/OVCharacterBase.h"
+#include "Character/OVCharacterPlayer.h"
+#include "Stat/OVCharacterStatComponent.h"
 
 // Sets default values
 AOVGun::AOVGun()
@@ -29,6 +31,7 @@ TEXT("/Script/Niagara.NiagaraSystem'/Game/Vefects/Blood_VFX/VFX/Performance_Vers
 		UE_LOG(LogTemp, Warning, TEXT("HITREF"));
 		EmitterHit = HitRef.Object;
 	}
+
 }
 
 void AOVGun::PullTrigger()
@@ -58,6 +61,9 @@ void AOVGun::PullTrigger()
 		AOVCharacterBase* HitActor = Cast<AOVCharacterBase>(Hit.GetActor());
 		if (HitActor != nullptr)
 		{
+			AOVCharacterPlayer* CharacterPlayer = Cast<AOVCharacterPlayer>(GetOwner());
+			Damage = CharacterPlayer->GetAttack();
+			UE_LOG(LogTemp, Warning, TEXT("Damage %f"), Damage);
 			FPointDamageEvent DamageEvent{ Damage, Hit, ShotDirection, nullptr };
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), EmitterHit, Hit.Location, FRotator::ZeroRotator);
 			HitActor->TakeDamage(Damage, DamageEvent, OwnerController, this);

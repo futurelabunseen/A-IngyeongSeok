@@ -10,7 +10,8 @@
 #include "Components/WidgetComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Stat/OVCharacterStatComponent.h"
-
+#include "UI/OVWidgetComponent.h"
+#include "UI/OVHpBarWidget.h"
 
 // Sets default values
 AOVCharacterBase::AOVCharacterBase()
@@ -65,14 +66,14 @@ AOVCharacterBase::AOVCharacterBase()
 		CharacterControlManager.Add(ECharacterControlType::Quater, QuaterDataRef.Object);
 	}
 
-	Health = MaxHealth;
+//	Health = MaxHealth;
 
 	
 	//Stat Component
 	Stat = CreateDefaultSubobject<UOVCharacterStatComponent>(TEXT("Stat"));
 
 	//Widget Component
-	HpBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
+	HpBar = CreateDefaultSubobject<UOVWidgetComponent>(TEXT("Widget"));
 	HpBar->SetupAttachment(GetMesh());
 	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 200.0f));
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UMG/WBP_HpBar.WBP_HpBar_C"));
@@ -83,6 +84,12 @@ AOVCharacterBase::AOVCharacterBase()
 		HpBar->SetDrawSize(FVector2D(150.0f, 15.0f));
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+}
+
+void AOVCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	Stat->OnHpZero.AddUObject(this, &AOVCharacterBase::SetDead);
 }
 
 void AOVCharacterBase::SetCharacterControlData(const UOVCharacterControlData* CharacterControlData)
@@ -99,13 +106,30 @@ void AOVCharacterBase::SetCharacterControlData(const UOVCharacterControlData* Ch
 float AOVCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float DamageTpApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	DamageTpApply = FMath::Min(Health, DamageTpApply);
-	Health -= DamageTpApply;
+	Stat->ApplyDamage(DamageAmount);
 	
-
-	UE_LOG(LogTemp, Log, TEXT("Health : %f"), Health);
 	return DamageTpApply;
 
+}
+
+void AOVCharacterBase::SetDead()
+{
+	UE_LOG(LogTemp, Warning, TEXT("DEAD!!!"));
+	SetActorEnableCollision(false);
+	HpBar->SetHiddenInGame(true);
+	// Destroy(this);
+	SetActorHiddenInGame(true);
+}
+
+void AOVCharacterBase::SetupCharacterWidget(UOVUserWidget* InUserWidget)
+{
+	UOVHpBarWidget* HpBarWidget = Cast<UOVHpBarWidget>(InUserWidget);
+	if(HpBarWidget)
+	{
+		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
+		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
+		Stat->OnHpchanged.AddUObject(HpBarWidget, &UOVHpBarWidget::UpdateHpBar);
+	}
 }
 
 

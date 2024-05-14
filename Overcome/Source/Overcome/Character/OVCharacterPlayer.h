@@ -7,6 +7,7 @@
 #include "InputActionValue.h"
 #include "Components/TimelineComponent.h"
 #include "Interface/OVCharacterItemInterface.h"
+#include "Stat/OVCharacterStatComponent.h"
 #include "UObject/FastReferenceCollector.h"
 #include "OVCharacterPlayer.generated.h"
 
@@ -172,6 +173,9 @@ protected:
 
 
 	//Gun
+public:
+	FORCEINLINE float GetAttack() {return Stat->GetCurrentAttack();}
+	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Gun")
 	TSubclassOf<AOVGun> GunClass;
@@ -220,4 +224,6 @@ protected:
 	void DrinkHp(class UOVItemData* InItemData);
 	void DrinkMp(class UOVItemData* InItemData);
 	void DrinkAttack(class UOVItemData* InItemData);
+
+
 };

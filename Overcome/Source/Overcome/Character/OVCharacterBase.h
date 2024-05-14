@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/OVCharateWidgetInterface.h"
 #include "OVCharacterBase.generated.h"
+
 
 class UNiagaraSystem;
 
@@ -16,7 +18,7 @@ enum class ECharacterControlType : uint8
 };
 
 UCLASS()
-class OVERCOME_API AOVCharacterBase : public ACharacter
+class OVERCOME_API AOVCharacterBase : public ACharacter, public IOVCharateWidgetInterface
 {
 	GENERATED_BODY()
 
@@ -24,6 +26,8 @@ public:
 	// Sets default values for this character's properties
 	AOVCharacterBase();
 
+	virtual void PostInitializeComponents() override;
+	
 protected:
 	virtual void SetCharacterControlData(const class UOVCharacterControlData* CharacterControlData);
 
@@ -35,21 +39,24 @@ public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = Gun)
-	float MaxHealth = 100.f;
+	// UPROPERTY(EditDefaultsOnly, Category = Gun)
+	// float MaxHealth = 100.f;
 
-	UPROPERTY(VisibleAnywhere)
-	float Health;
+	// UPROPERTY(VisibleAnywhere)
+	// float Health;
 
-
+	UFUNCTION()
+	void SetDead();
 	
 	//Stat Section
-protected:
+public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UOVCharacterStatComponent> Stat;
 	
 	//UI Widget Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UWidgetComponent> HpBar;
+	TObjectPtr<class UOVWidgetComponent> HpBar;
+
+	virtual void SetupCharacterWidget(UOVUserWidget* InUserWidget) override;
 };

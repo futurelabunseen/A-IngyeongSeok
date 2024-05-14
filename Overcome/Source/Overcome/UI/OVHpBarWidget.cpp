@@ -5,6 +5,7 @@
 
 #include "CookedMetaData.h"
 #include "Components/ProgressBar.h"
+#include "Interface/OVCharateWidgetInterface.h"
 
 UOVHpBarWidget::UOVHpBarWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -15,6 +16,12 @@ void UOVHpBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	HpProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PbHpBar")));
+
+	IOVCharateWidgetInterface* CharacterWidget = Cast<IOVCharateWidgetInterface>(OwningActor);
+	if(CharacterWidget)
+	{
+		CharacterWidget->SetupCharacterWidget(this);
+	}
 }
 
 void UOVHpBarWidget::UpdateHpBar(float NewCurrentHp)

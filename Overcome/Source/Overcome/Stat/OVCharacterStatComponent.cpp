@@ -8,6 +8,8 @@ UOVCharacterStatComponent::UOVCharacterStatComponent()
 {
 	MaxHp = 100;
 	CurrentHp = MaxHp;
+	CurrentAttack = 10;
+	CurrentMp = 100;
 }
 
 
@@ -27,7 +29,6 @@ float UOVCharacterStatComponent::ApplyDamage(float InDamage)
 	SetHp(PrevHp - ActualDamage);
 	if(CurrentHp <= KINDA_SMALL_NUMBER)
 	{
-		//????
 		OnHpZero.Broadcast();
 	}
 	return ActualDamage;
@@ -36,8 +37,18 @@ float UOVCharacterStatComponent::ApplyDamage(float InDamage)
 void UOVCharacterStatComponent::SetHp(float NewHp)
 {
 	CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, MaxHp);
-
 	OnHpchanged.Broadcast(CurrentHp);
+}
+
+void UOVCharacterStatComponent::SetMp(float NewMp)
+{
+	CurrentMp = FMath::Clamp<float>(NewMp, 0.0f, 100);
+}
+
+void UOVCharacterStatComponent::SetAttack(float NewAttack)
+{
+	CurrentAttack = FMath::Clamp<float>(NewAttack, 0.0f, 100);
+	OnAttackChanged.Broadcast(CurrentAttack);
 }
 
 

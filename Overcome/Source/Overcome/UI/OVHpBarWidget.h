@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "OVUserWidget.h"
 #include "OVHpBarWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class OVERCOME_API UOVHpBarWidget : public UUserWidget
+class OVERCOME_API UOVHpBarWidget : public UOVUserWidget
 {
 	GENERATED_BODY()
 

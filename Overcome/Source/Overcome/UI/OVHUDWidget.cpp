@@ -3,6 +3,7 @@
 
 #include "UI/OVHUDWidget.h"
 
+#include "OVStatWidget.h"
 #include "OVTargetWidget.h"
 #include "Interface/OVCharacterHUDInterface.h"
 
@@ -14,7 +15,7 @@ void UOVHUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	TargetWidget = Cast<UOVTargetWidget>(GetWidgetFromName(TEXT("WBP_TargetWidget")));
-
+	StatWidget = Cast<UOVStatWidget>(GetWidgetFromName(TEXT("WBP_Stat")));
 	IOVCharacterHUDInterface* CharacterWidget = Cast<IOVCharacterHUDInterface>(GetOwningPlayerPawn());
 	if(CharacterWidget)
 	{

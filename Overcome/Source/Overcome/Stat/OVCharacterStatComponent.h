@@ -9,6 +9,7 @@
 DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnHpChangedDelegate, float /*CurrentHp*/);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAttackChangedDelegate, float /*CurrentHp*/);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnStatChangedDelegate, float /*Hp*/, float /*Mp*/, float /*Attack*/)
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OVERCOME_API UOVCharacterStatComponent : public UActorComponent
@@ -27,7 +28,8 @@ public:
 	FOnHpZeroDelegate OnHpZero;
 	FOnHpChangedDelegate OnHpchanged;
 	FOnAttackChangedDelegate OnAttackChanged;
-	
+	FOnStatChangedDelegate OnStatChanged;
+
 	FORCEINLINE float GetMaxHp() {return MaxHp;}
 	FORCEINLINE float GetCurrentHp() {return CurrentHp;}
 	FORCEINLINE float GetCurrentMp() {return CurrentMp;}

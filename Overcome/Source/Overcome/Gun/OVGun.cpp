@@ -28,7 +28,6 @@ TEXT("/Script/Niagara.NiagaraSystem'/Game/Vefects/Blood_VFX/VFX/Performance_Vers
 
 	if (HitRef.Succeeded())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HITREF"));
 		EmitterHit = HitRef.Object;
 	}
 

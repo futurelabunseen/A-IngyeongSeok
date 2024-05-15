@@ -5,6 +5,7 @@
 
 #include "CookedMetaData.h"
 #include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
 #include "Interface/OVCharateWidgetInterface.h"
 
 UOVHpBarWidget::UOVHpBarWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -17,6 +18,9 @@ void UOVHpBarWidget::NativeConstruct()
 	Super::NativeConstruct();
 	HpProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PbHpBar")));
 
+
+	HpStat = Cast<UTextBlock>(GetWidgetFromName(TEXT("TxtHpStat")));
+	
 	IOVCharateWidgetInterface* CharacterWidget = Cast<IOVCharateWidgetInterface>(OwningActor);
 	if(CharacterWidget)
 	{
@@ -32,4 +36,14 @@ void UOVHpBarWidget::UpdateHpBar(float NewCurrentHp)
 	{
 		HpProgressBar->SetPercent(NewCurrentHp/MaxHp);
 	}
+	CurrentHp = NewCurrentHp;
+	if (HpStat)
+	{
+		HpStat->SetText(FText::FromString(GetHpStatText()));
+	}
+}
+
+FString UOVHpBarWidget::GetHpStatText()
+{
+	return FString::Printf(TEXT("%.0f/%0.f"), CurrentHp, MaxHp);
 }

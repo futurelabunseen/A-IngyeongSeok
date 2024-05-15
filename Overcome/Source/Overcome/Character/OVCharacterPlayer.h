@@ -228,6 +228,7 @@ protected:
 	//UI
 public:
 	FOnAimChangedDelegate OnAimChanged;
+	
 protected:
 	virtual void SetupHUDWidget(UOVHUDWidget* InUserWidget) override;
 };

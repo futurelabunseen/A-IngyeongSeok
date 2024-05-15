@@ -38,17 +38,21 @@ void UOVCharacterStatComponent::SetHp(float NewHp)
 {
 	CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, MaxHp);
 	OnHpchanged.Broadcast(CurrentHp);
+	OnStatChanged.Broadcast(CurrentHp, CurrentMp, CurrentAttack);
 }
 
 void UOVCharacterStatComponent::SetMp(float NewMp)
 {
 	CurrentMp = FMath::Clamp<float>(NewMp, 0.0f, 100);
+	OnStatChanged.Broadcast(CurrentHp, CurrentMp, CurrentAttack);
+	
 }
 
 void UOVCharacterStatComponent::SetAttack(float NewAttack)
 {
 	CurrentAttack = FMath::Clamp<float>(NewAttack, 0.0f, 100);
 	OnAttackChanged.Broadcast(CurrentAttack);
+	OnStatChanged.Broadcast(CurrentHp, CurrentMp, CurrentAttack);
 }
 
 

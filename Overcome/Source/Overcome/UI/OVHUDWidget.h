@@ -23,5 +23,8 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<class UOVTargetWidget> TargetWidget;
+public:
+	UPROPERTY()
+	TObjectPtr<class UOVStatWidget> StatWidget;
 	
 };

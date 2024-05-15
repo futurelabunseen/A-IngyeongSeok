@@ -23,11 +23,18 @@ protected:
 public:
 	FORCEINLINE void SetMaxHp(float NewMAxHp){MaxHp = NewMAxHp;}
 	void UpdateHpBar(float NewCurrentHp);
+	FString GetHpStatText();
 	
 protected:
 	UPROPERTY()
 	TObjectPtr<class UProgressBar> HpProgressBar;
 
+	UPROPERTY()
+	TObjectPtr<class UTextBlock> HpStat;
+	
+	UPROPERTY()
+	float CurrentHp;
+	
 	UPROPERTY()
 	float MaxHp;
 };

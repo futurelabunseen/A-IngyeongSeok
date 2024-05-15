@@ -16,6 +16,7 @@
 #include "Item/OVHpItemData.h"
 #include "Stat/OVCharacterStatComponent.h"
 #include "UI/OVHUDWidget.h"
+#include "UI/OVStatWidget.h"
 
 DEFINE_LOG_CATEGORY(LogOVCharacter);
 
@@ -442,7 +443,6 @@ void AOVCharacterPlayer::Shoot()
 
 void AOVCharacterPlayer::StopShoot()
 {
-
 }
 
 void AOVCharacterPlayer::ServerRPCStopAiming_Implementation()
@@ -503,7 +503,6 @@ void AOVCharacterPlayer::DrinkAttack(UOVItemData* InItemData)
 {
 	float AttackIncreaseAmount = Stat->GetCurrentAttack()  + 30;
 	Stat->SetAttack(AttackIncreaseAmount);
-
 }
 
 void AOVCharacterPlayer::Damage(UOVItemData* InItemData)
@@ -515,6 +514,12 @@ void AOVCharacterPlayer::Damage(UOVItemData* InItemData)
 void AOVCharacterPlayer::SetupHUDWidget(UOVHUDWidget* InUserWidget)
 {
 	OnAimChanged.AddUObject(InUserWidget, &UOVHUDWidget::UpdateTarget);
+	UOVStatWidget* StatWidget = InUserWidget->StatWidget;
+	if(StatWidget)
+	{
+		StatWidget->UpdateStatWidget(Stat->GetCurrentHp(), Stat->GetCurrentMp(), Stat->GetCurrentAttack());
+		Stat->OnStatChanged.AddUObject(StatWidget, &UOVStatWidget::UpdateStatWidget);
+	}
 }
 
 

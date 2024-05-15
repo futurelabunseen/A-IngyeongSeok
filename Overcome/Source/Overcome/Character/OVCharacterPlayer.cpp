@@ -495,13 +495,13 @@ void AOVCharacterPlayer::DrinkHp(UOVItemData* InItemData)
 
 void AOVCharacterPlayer::DrinkMp(UOVItemData* InItemData)
 {
-	float MpIncreaseAmount = Stat->GetCurrentMp()  + 30;
+	float MpIncreaseAmount = Stat->GetCurrentMp()  + 20;
 	Stat->SetMp(MpIncreaseAmount);
 }
 
 void AOVCharacterPlayer::DrinkAttack(UOVItemData* InItemData)
 {
-	float AttackIncreaseAmount = Stat->GetCurrentAttack()  + 30;
+	float AttackIncreaseAmount = Stat->GetCurrentAttack()  + 10;
 	Stat->SetAttack(AttackIncreaseAmount);
 }
 

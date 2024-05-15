@@ -30,8 +30,7 @@ void UOVHpBarWidget::NativeConstruct()
 
 void UOVHpBarWidget::UpdateHpBar(float NewCurrentHp)
 {
-	 ensure(MaxHp > 0.0f);
-
+	ensure(MaxHp > 0.0f);
 	if(HpProgressBar)
 	{
 		HpProgressBar->SetPercent(NewCurrentHp/MaxHp);

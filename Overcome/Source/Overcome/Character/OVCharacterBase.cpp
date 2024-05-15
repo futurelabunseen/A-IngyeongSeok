@@ -2,7 +2,6 @@
 
 
 #include "Character/OVCharacterBase.h"
-
 #include "NiagaraFunctionLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -20,7 +19,6 @@ AOVCharacterBase::AOVCharacterBase()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
-
 
 	//Capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -107,9 +105,7 @@ float AOVCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 {
 	float DamageTpApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	Stat->ApplyDamage(DamageAmount);
-	
 	return DamageTpApply;
-
 }
 
 void AOVCharacterBase::SetDead()

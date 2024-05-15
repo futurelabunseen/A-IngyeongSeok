@@ -45,7 +45,6 @@ void UOVCharacterStatComponent::SetMp(float NewMp)
 {
 	CurrentMp = FMath::Clamp<float>(NewMp, 0.0f, 100);
 	OnStatChanged.Broadcast(CurrentHp, CurrentMp, CurrentAttack);
-	
 }
 
 void UOVCharacterStatComponent::SetAttack(float NewAttack)

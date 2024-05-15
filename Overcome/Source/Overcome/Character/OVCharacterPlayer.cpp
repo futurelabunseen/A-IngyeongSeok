@@ -14,6 +14,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Item/OVHpItemData.h"
+#include "Skill/OVTeleportSkill.h"
 #include "Stat/OVCharacterStatComponent.h"
 #include "UI/OVHUDWidget.h"
 #include "UI/OVStatWidget.h"
@@ -86,6 +87,12 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 	{
 		WheelAction = WheelActionRef.Object;
 	}
+	
+	static ConstructorHelpers::FObjectFinder<UInputAction> TeleportActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_OV_Teleport.IA_OV_Teleport'"));
+	if (nullptr != TeleportActionRef.Object)
+	{
+		TeleportAction = TeleportActionRef.Object;
+	}
 
 	CurrentCharacterControlType = ECharacterControlType::Shoulder;
 	bIsAiming = false;
@@ -105,6 +112,9 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AOVCharacterPlayer::DrinkAttack)));
 	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AOVCharacterPlayer::Damage)));
 
+	//Skill
+	TeleportSkillComponent = CreateDefaultSubobject<UOVTeleportSkill>(TEXT("TeleSkillComponent"));
+	bIsActiveTeleportSkill = true;
 }
 
 void AOVCharacterPlayer::BeginPlay()
@@ -144,6 +154,7 @@ void AOVCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::Shoot);
 	EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Completed, this, &AOVCharacterPlayer::StopShoot);
 	EnhancedInputComponent->BindAction(WheelAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::ChangeWeapon);
+	EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::TeleportSkill);
 }
 
 void AOVCharacterPlayer::SmoothInterpReturn(float Value)
@@ -519,6 +530,17 @@ void AOVCharacterPlayer::SetupHUDWidget(UOVHUDWidget* InUserWidget)
 	{
 		StatWidget->UpdateStatWidget(Stat->GetCurrentHp(), Stat->GetCurrentMp(), Stat->GetCurrentAttack());
 		Stat->OnStatChanged.AddUObject(StatWidget, &UOVStatWidget::UpdateStatWidget);
+	}
+}
+
+void AOVCharacterPlayer::TeleportSkill(const FInputActionValue& Value)
+{
+	if(bIsActiveTeleportSkill && Stat->GetCurrentMp())
+	{
+		bIsActiveTeleportSkill = false;
+		TeleportSkillComponent->SkillAction();
+		float MpIncreaseAmount = Stat->GetCurrentMp()  - 20;
+		Stat->SetMp(MpIncreaseAmount);
 	}
 }
 

@@ -46,7 +46,7 @@ protected:
 	// float Health;
 
 	UFUNCTION()
-	void SetDead();
+	virtual void SetDead();
 	
 	//Stat Section
 public:

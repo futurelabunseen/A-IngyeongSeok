@@ -64,8 +64,6 @@ AOVCharacterBase::AOVCharacterBase()
 		CharacterControlManager.Add(ECharacterControlType::Quater, QuaterDataRef.Object);
 	}
 
-//	Health = MaxHealth;
-
 	
 	//Stat Component
 	Stat = CreateDefaultSubobject<UOVCharacterStatComponent>(TEXT("Stat"));
@@ -114,7 +112,7 @@ void AOVCharacterBase::SetDead()
 	SetActorEnableCollision(false);
 	HpBar->SetHiddenInGame(true);
 	// Destroy(this);
-	SetActorHiddenInGame(true);
+	//SetActorHiddenInGame(true);
 }
 
 void AOVCharacterBase::SetupCharacterWidget(UOVUserWidget* InUserWidget)

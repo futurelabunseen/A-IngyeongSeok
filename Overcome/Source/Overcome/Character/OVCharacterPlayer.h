@@ -97,6 +97,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> WheelAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> TeleportAction;
+
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLookX(const FInputActionValue& Value);
 	void ShoulderLookY(const FInputActionValue& Value);
@@ -107,7 +110,6 @@ protected:
 	void StopAiming(const FInputActionValue& Value);
 
 	void Jumping(const FInputActionValue& Value);
-
 	void ChangeWeapon(const FInputActionValue& Value);
 
 	//AimOffset
@@ -231,4 +233,16 @@ public:
 	
 protected:
 	virtual void SetupHUDWidget(UOVHUDWidget* InUserWidget) override;
+
+
+	//Skill
+public:
+	UPROPERTY()
+	uint8 bIsActiveTeleportSkill : 1;
+	
+	UPROPERTY()
+	TObjectPtr<class UOVTeleportSkill> TeleportSkillComponent;
+	
+	void TeleportSkill(const FInputActionValue& Value);
+
 };

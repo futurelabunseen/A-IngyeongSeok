@@ -6,16 +6,18 @@
 #include "Character/OVCharacterBase.h"
 #include "InputActionValue.h"
 #include "Components/TimelineComponent.h"
+#include "Interface/OVCharacterHUDInterface.h"
 #include "Interface/OVCharacterItemInterface.h"
 #include "Stat/OVCharacterStatComponent.h"
-#include "UObject/FastReferenceCollector.h"
 #include "OVCharacterPlayer.generated.h"
 
 /**
  * 
  */
 
+class UOVHUDWidget;
 DECLARE_LOG_CATEGORY_EXTERN(LogOVCharacter, Log, All);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAimChangedDelegate, bool /*aim*/)
 
 class AOVGun;
 
@@ -30,7 +32,7 @@ struct FTakeItemDelegateWrapper
 };
 
 UCLASS()
-class OVERCOME_API AOVCharacterPlayer : public AOVCharacterBase, public IOVCharacterItemInterface
+class OVERCOME_API AOVCharacterPlayer : public AOVCharacterBase, public IOVCharacterItemInterface, public IOVCharacterHUDInterface
 {
 	GENERATED_BODY()
 
@@ -205,9 +207,6 @@ public:
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCIsGun(bool IsGun);
 
-	// ClientRPC
-	UFUNCTION(Client, Unreliable)
-	void ClientRPCAttachGun(bool IsGun);
 	
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -224,6 +223,11 @@ protected:
 	void DrinkHp(class UOVItemData* InItemData);
 	void DrinkMp(class UOVItemData* InItemData);
 	void DrinkAttack(class UOVItemData* InItemData);
+	void Damage(class UOVItemData* InItemData);
 
-
+	//UI
+public:
+	FOnAimChangedDelegate OnAimChanged;
+protected:
+	virtual void SetupHUDWidget(UOVHUDWidget* InUserWidget) override;
 };

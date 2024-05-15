@@ -15,6 +15,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Item/OVHpItemData.h"
 #include "Stat/OVCharacterStatComponent.h"
+#include "UI/OVHUDWidget.h"
 
 DEFINE_LOG_CATEGORY(LogOVCharacter);
 
@@ -101,7 +102,7 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AOVCharacterPlayer::DrinkHp)));
 	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AOVCharacterPlayer::DrinkMp)));
 	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AOVCharacterPlayer::DrinkAttack)));
-
+	TakeItemActions.Add(FTakeItemDelegateWrapper(FOnTakeItemDelegate::CreateUObject(this, &AOVCharacterPlayer::Damage)));
 
 }
 
@@ -268,6 +269,7 @@ void AOVCharacterPlayer::Aiming(const FInputActionValue& Value)
 	{
 		bIsAiming = true;
 		SmoothCurveTimeline->Play();
+		OnAimChanged.Broadcast(bIsAiming);
 		ServerRPCAiming();
 	}
 }
@@ -276,6 +278,7 @@ void AOVCharacterPlayer::StopAiming(const FInputActionValue& Value)
 {
 	bIsAiming = false;
 	SmoothCurveTimeline->Reverse();
+	OnAimChanged.Broadcast(bIsAiming);
 	ServerRPCStopAiming();
 }
 
@@ -462,19 +465,6 @@ void AOVCharacterPlayer::ServerRPCIsGun_Implementation(bool IsGun)
 
 }
 
-void AOVCharacterPlayer::ClientRPCAttachGun_Implementation(bool IsGun)
-{
-	if(IsGun)                                                                                                                    
-	{
-	
-		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Rifle_Socket"));               
-	}                                                                                                                            
-	else                                                                                                                         
-	{
-		
-		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Back_Socket"));                
-	}                                                                                                                            
-}
 
 void AOVCharacterPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -499,22 +489,34 @@ void AOVCharacterPlayer::TakeItem(UOVItemData* InItemData)
 
 void AOVCharacterPlayer::DrinkHp(UOVItemData* InItemData)
 {
-	float HpIncreaseAmount = Stat->GetCurrentHp() * 1.3;
+	float HpIncreaseAmount = Stat->GetCurrentHp() + 30;
 	Stat->SetHp(HpIncreaseAmount);
 }
 
 void AOVCharacterPlayer::DrinkMp(UOVItemData* InItemData)
 {
-	float MpIncreaseAmount = Stat->GetCurrentMp() * 1.3;
+	float MpIncreaseAmount = Stat->GetCurrentMp()  + 30;
 	Stat->SetMp(MpIncreaseAmount);
 }
 
 void AOVCharacterPlayer::DrinkAttack(UOVItemData* InItemData)
 {
-	float AttackIncreaseAmount = Stat->GetCurrentAttack() * 1.3;
+	float AttackIncreaseAmount = Stat->GetCurrentAttack()  + 30;
 	Stat->SetAttack(AttackIncreaseAmount);
 
 }
+
+void AOVCharacterPlayer::Damage(UOVItemData* InItemData)
+{
+	float HpIncreaseAmount = Stat->GetCurrentHp()-  30;
+	Stat->SetHp(HpIncreaseAmount);
+}
+
+void AOVCharacterPlayer::SetupHUDWidget(UOVHUDWidget* InUserWidget)
+{
+	OnAimChanged.AddUObject(InUserWidget, &UOVHUDWidget::UpdateTarget);
+}
+
 
 void AOVCharacterPlayer::ServerRPCAiming_Implementation()
 {

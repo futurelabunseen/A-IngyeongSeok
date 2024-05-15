@@ -11,7 +11,8 @@ enum class EItemType : UINT8
 {
 	HpPotion = 0,
 	MpPotion,
-	AttackPotion
+	AttackPotion,
+	Damage
 };
 
 /**

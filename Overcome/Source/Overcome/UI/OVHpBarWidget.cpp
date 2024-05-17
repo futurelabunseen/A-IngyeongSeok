@@ -2,8 +2,6 @@
 
 
 #include "UI/OVHpBarWidget.h"
-
-#include "CookedMetaData.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Interface/OVCharateWidgetInterface.h"

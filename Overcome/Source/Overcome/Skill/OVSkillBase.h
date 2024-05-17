@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "OVSkillBase.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogSkillCharacter, Log, All);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OVERCOME_API UOVSkillBase : public UActorComponent

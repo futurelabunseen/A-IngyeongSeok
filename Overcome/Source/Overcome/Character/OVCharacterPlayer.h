@@ -100,6 +100,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> TeleportAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> ShieldAction;
+	
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLookX(const FInputActionValue& Value);
 	void ShoulderLookY(const FInputActionValue& Value);
@@ -239,10 +242,17 @@ protected:
 public:
 	UPROPERTY()
 	uint8 bIsActiveTeleportSkill : 1;
+
+	UPROPERTY()
+	uint8 bIsActiveShieldSkill : 1;
 	
 	UPROPERTY()
 	TObjectPtr<class UOVTeleportSkill> TeleportSkillComponent;
+
+	UPROPERTY()
+	TObjectPtr<class UOVShieldSkill> ShieldSkillComponent;
 	
 	void TeleportSkill(const FInputActionValue& Value);
+	void ShieldSkill(const FInputActionValue& Value);
 
 };

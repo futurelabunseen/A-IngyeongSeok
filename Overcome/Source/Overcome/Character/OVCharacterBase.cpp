@@ -2,12 +2,10 @@
 
 
 #include "Character/OVCharacterBase.h"
-#include "NiagaraFunctionLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "OVCharacterControlData.h"
 #include "Components/WidgetComponent.h"
-#include "Engine/DamageEvents.h"
 #include "Stat/OVCharacterStatComponent.h"
 #include "UI/OVWidgetComponent.h"
 #include "UI/OVHpBarWidget.h"

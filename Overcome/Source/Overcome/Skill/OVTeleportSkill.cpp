@@ -4,47 +4,24 @@
 #include "Skill/OVTeleportSkill.h"
 #include "Character/OVCharacterPlayer.h"
 
+
 UOVTeleportSkill::UOVTeleportSkill()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	CoolTime = 10;
+	//CoolTime = 10;
 	TeleportOffset = 600.0f;
-	TeleportCooltime = 3.0f;
+	TeleportCooltime = 5.f;
 }
 
 void UOVTeleportSkill::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	// if (!Owner)
-	// {
-	// 	return;
-	// }
-	//
-	// if (Owner->bIsActiveTeleportSkill) 
-	// {
-	// 	return;
-	// }
-	// FGameTime CurrentGameTime = GetWorld()->GetTime();
-	// if (CurrentGameTime.GetWorldTimeSeconds() < ActivetedTimeStamp + CoolTime)
-	// {
-	//
-	// 	float ElapsedTime =( CurrentGameTime.GetWorldTimeSeconds() - ActivetedTimeStamp)/CoolTime;
-	// 	float CTTime= FMath::Clamp(1.0f-ElapsedTime, 0.0f, 1.0f);
-	// 	//TeleCoolDown(CTTime);
-	// }
-	// else
-	// {
-	// 	float ElapsedTime =( CurrentGameTime.GetWorldTimeSeconds() - ActivetedTimeStamp)/CoolTime;
-	// 	float CTTime=  FMath::Clamp(1.0f-ElapsedTime, 0.0f, 1.0f)/CoolTime;
-	// 	//TeleCoolDown(CTTime);
-	// 	Owner->bIsActiveTeleportSkill = true;
-	// }
 }
 
 void UOVTeleportSkill::SkillAction()
 {
+	UE_LOG(LogSkillCharacter, Log, TEXT("StartTeleportSkill"));
 	Super::SkillAction();
 	FVector TargetLocation = GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector() * TeleportOffset;
 	GetOwner()->TeleportTo(TargetLocation, GetOwner()->GetActorRotation(), false, true);
@@ -53,7 +30,7 @@ void UOVTeleportSkill::SkillAction()
 	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([&]
 		{
 			Owner->bIsActiveTeleportSkill = true;
-			UE_LOG(LogTemp, Warning, TEXT("TeleportSkill"));
+			UE_LOG(LogSkillCharacter, Log, TEXT("EndTeleportSkill"));
 		}
 	), TeleportCooltime, false, -1.0f);
 }

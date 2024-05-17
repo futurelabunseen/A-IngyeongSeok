@@ -8,7 +8,6 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Character/OVCharacterBase.h"
 #include "Character/OVCharacterPlayer.h"
-#include "Stat/OVCharacterStatComponent.h"
 
 // Sets default values
 AOVGun::AOVGun()

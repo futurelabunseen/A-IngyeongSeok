@@ -4,6 +4,8 @@
 #include "Skill/OVSkillBase.h"
 #include "Character/OVCharacterPlayer.h"
 
+DEFINE_LOG_CATEGORY(LogSkillCharacter);
+
 // Sets default values for this component's properties
 UOVSkillBase::UOVSkillBase()
 {

@@ -14,6 +14,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Item/OVHpItemData.h"
+#include "Skill/OVShieldSkill.h"
 #include "Skill/OVTeleportSkill.h"
 #include "Stat/OVCharacterStatComponent.h"
 #include "UI/OVHUDWidget.h"
@@ -94,6 +95,12 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 		TeleportAction = TeleportActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> ShieldActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_OV_Shield.IA_OV_Shield'"));
+	if (nullptr != ShieldActionRef.Object)
+	{
+		ShieldAction = ShieldActionRef.Object;
+	}
+
 	CurrentCharacterControlType = ECharacterControlType::Shoulder;
 	bIsAiming = false;
 
@@ -115,6 +122,9 @@ AOVCharacterPlayer::AOVCharacterPlayer()
 	//Skill
 	TeleportSkillComponent = CreateDefaultSubobject<UOVTeleportSkill>(TEXT("TeleSkillComponent"));
 	bIsActiveTeleportSkill = true;
+
+	ShieldSkillComponent = CreateDefaultSubobject<UOVShieldSkill>(TEXT("ShieldSkillComponent"));
+	bIsActiveShieldSkill = true;
 }
 
 void AOVCharacterPlayer::BeginPlay()
@@ -155,6 +165,7 @@ void AOVCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Completed, this, &AOVCharacterPlayer::StopShoot);
 	EnhancedInputComponent->BindAction(WheelAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::ChangeWeapon);
 	EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::TeleportSkill);
+	EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &AOVCharacterPlayer::ShieldSkill);
 }
 
 void AOVCharacterPlayer::SmoothInterpReturn(float Value)
@@ -518,8 +529,11 @@ void AOVCharacterPlayer::DrinkAttack(UOVItemData* InItemData)
 
 void AOVCharacterPlayer::Damage(UOVItemData* InItemData)
 {
-	float HpIncreaseAmount = Stat->GetCurrentHp()-  30;
-	Stat->SetHp(HpIncreaseAmount);
+	if(bIsActiveShieldSkill)
+	{
+		float HpIncreaseAmount = Stat->GetCurrentHp()-  30;
+		Stat->SetHp(HpIncreaseAmount);
+	}
 }
 
 void AOVCharacterPlayer::SetupHUDWidget(UOVHUDWidget* InUserWidget)
@@ -540,6 +554,17 @@ void AOVCharacterPlayer::TeleportSkill(const FInputActionValue& Value)
 		bIsActiveTeleportSkill = false;
 		TeleportSkillComponent->SkillAction();
 		float MpIncreaseAmount = Stat->GetCurrentMp()  - 20;
+		Stat->SetMp(MpIncreaseAmount);
+	}
+}
+
+void AOVCharacterPlayer::ShieldSkill(const FInputActionValue& Value)
+{
+	if(bIsActiveShieldSkill && Stat->GetCurrentMp())
+	{
+		bIsActiveShieldSkill = false;
+		ShieldSkillComponent->SkillAction();
+		float MpIncreaseAmount = Stat->GetCurrentMp()  - 30;
 		Stat->SetMp(MpIncreaseAmount);
 	}
 }

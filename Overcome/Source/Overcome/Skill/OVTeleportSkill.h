@@ -13,7 +13,9 @@ UCLASS()
 class OVERCOME_API UOVTeleportSkill : public UOVSkillBase
 {
 	GENERATED_BODY()
+public:
 	UOVTeleportSkill();
+	
 protected:
 
 	UPROPERTY()
